@@ -14,9 +14,10 @@ namespace VolvoTestWebApp.Models
 
         public string Model { get; set; } = "FH";
 
+        [Display(Name = "Fabrication Year")]
         public int FabricationYear { get; set; } = DateTime.Now.Year;
 
-        [Required]
+        [Display(Name = "Model Year")]
         public int ModelYear { get; set; }
 
         [NotMapped]

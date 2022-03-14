@@ -9,9 +9,11 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="UpdateTruck" id="UpdateTruck">
+            @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="IsEdit" />
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
@@ -19,17 +21,16 @@
             </div>
             <div class="form-group">
                 <label asp-for="Model" class="control-label"></label>
-                <input asp-for="Model" class="form-control" />
+                <select asp-for="Model" class="form-control" asp-items="Model.ModelTypes"></select>
                 <span asp-validation-for="Model" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="FabricationYear" class="control-label"></label>
-                <input asp-for="FabricationYear" class="form-control" />
-                <span asp-validation-for="FabricationYear" class="text-danger"></span>
+                <p>@Model.FabricationYear</p>
             </div>
             <div class="form-group">
                 <label asp-for="ModelYear" class="control-label"></label>
-                <input asp-for="ModelYear" class="form-control" />
+                <select asp-for="ModelYear" class="form-control" asp-items="Model.ModelYears"></select>
                 <span asp-validation-for="ModelYear" class="text-danger"></span>
             </div>
             <div class="form-group">

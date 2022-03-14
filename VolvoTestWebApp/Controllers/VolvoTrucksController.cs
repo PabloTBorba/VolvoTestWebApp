@@ -71,7 +71,11 @@ namespace VolvoTestWebApp.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new VolvoTruckModel
+            {
+                IsEdit = false
+            };
+            return View(model);
         }
 
         // GET: VolvoTrucks/Edit/5
@@ -79,6 +83,7 @@ namespace VolvoTestWebApp.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             var volvoTruckModel = await GetTruckById(id);
+            volvoTruckModel.IsEdit = true;
 
             if (volvoTruckModel == null)
                 return NotFound();

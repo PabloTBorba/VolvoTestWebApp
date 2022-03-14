@@ -16,3 +16,16 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.btn {
+    margin-top: 10px;
+}
+
+.form-group {
+    padding-top: 10px;
+}
+
+.model-error {
+    color: red;
+    font-size: 13px;
+}
