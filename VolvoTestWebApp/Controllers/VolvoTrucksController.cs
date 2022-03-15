@@ -1,79 +1,18 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using VolvoTestWebApp.Data;
-using VolvoTestWebApp.Helpers;
+using VolvoTestWebApp.Data.Repositories.Abstractions;
 using VolvoTestWebApp.Models;
 
 namespace VolvoTestWebApp.Controllers
 {
     public class VolvoTrucksController : Controller
     {
-        private readonly VolvoTestWebAppContext _context;
+        private readonly IVolvoTruckRepository _repo;
 
-        public VolvoTrucksController(VolvoTestWebAppContext context)
+        public VolvoTrucksController(IVolvoTruckRepository repo)
         {
-            _context = context;
+            _repo = repo;
         }
-
-        #region Private methods
-
-        private async Task<List<VolvoTruckModel>> GetTrucks()
-        {
-            return await _context.VolvoTrucks.ToListAsync();
-        }
-
-        private async Task<VolvoTruckModel> GetTruckById(int? id)
-        {
-            if (!id.HasValue)
-                return null;
-
-            return await _context.VolvoTrucks
-                .FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        private async Task<UpdateTypeEnum> UpsertTruck(VolvoTruckModel volvoTruckModel)
-        {
-            if (volvoTruckModel.IsEdit)
-                _context.Update(volvoTruckModel);
-            else
-                _context.Add(volvoTruckModel);
-
-            return await SaveChanges(true, volvoTruckModel.IsEdit);
-        }
-
-        private async Task<UpdateTypeEnum> DeleteTruck(int truckId)
-        {
-            var volvoTruckModel = await GetTruckById(truckId);
-            _context.VolvoTrucks.Remove(volvoTruckModel);
-            return await SaveChanges(false);
-        }
-
-        private async Task<UpdateTypeEnum> SaveChanges(bool isUpsert, bool? isEdit = false)
-        {
-            try
-            {
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                    if (isUpsert)
-                    {
-                        return (isEdit.Value) ?
-                            UpdateTypeEnum.UpdateOk :
-                            UpdateTypeEnum.CreateOk;
-                    }
-                    else
-                        return UpdateTypeEnum.DeleteOk;
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
-            }
-
-            return UpdateTypeEnum.NoResult;
-        }
-
-        #endregion Private methods
 
         #region GET methods
 
@@ -84,11 +23,14 @@ namespace VolvoTestWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var trucks = await GetTrucks();
+            var trucks = await _repo.GetTrucks();
             return View(trucks);
         }
 
-        // GET: VolvoTrucks/Create
+        /**
+         * GET: VolvoTrucks/Create
+         * Register a new truck in the system
+         */
         [HttpGet]
         public IActionResult Create()
         {
@@ -99,11 +41,14 @@ namespace VolvoTestWebApp.Controllers
             return View(model);
         }
 
-        // GET: VolvoTrucks/Edit/5
+        /**
+         * GET: VolvoTrucks/Edit/5
+         * Get the info from a existing truck for update purposes
+         */
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            var volvoTruckModel = await GetTruckById(id);
+            var volvoTruckModel = await _repo.GetTruckById(id);
             volvoTruckModel.IsEdit = true;
 
             if (volvoTruckModel == null)
@@ -112,11 +57,14 @@ namespace VolvoTestWebApp.Controllers
             return View(volvoTruckModel);
         }
 
-        // GET: VolvoTrucks/Delete/5
+        /**
+         * GET: VolvoTrucks/Delete/5
+         * Erase a truck from the system
+         */
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            var volvoTruckModel = await GetTruckById(id);
+            var volvoTruckModel = await _repo.GetTruckById(id);
 
             if (volvoTruckModel == null)
                 return NotFound();
@@ -128,7 +76,10 @@ namespace VolvoTestWebApp.Controllers
 
         #region POST methods
 
-        // POST: VolvoTrucks/UpdateTruck/5
+        /**
+         * POST: VolvoTrucks/UpdateTruck/5
+         * The same post method is used for both create and edit forms
+         */
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTruck(int? id, [Bind("Id,Description,Model," +
@@ -136,7 +87,7 @@ namespace VolvoTestWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                await UpsertTruck(volvoTruckModel);
+                await _repo.UpsertTruck(volvoTruckModel);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -149,7 +100,7 @@ namespace VolvoTestWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await DeleteTruck(id);
+            await _repo.DeleteTruck(id);
             return RedirectToAction(nameof(Index));
         }
 

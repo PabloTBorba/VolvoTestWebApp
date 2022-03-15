@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VolvoTestWebApp.Data;
+using VolvoTestWebApp.Data.Repositories;
+using VolvoTestWebApp.Data.Repositories.Abstractions;
 using VolvoTestWebApp.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ builder.Services.AddDbContext<VolvoTestWebAppContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IVolvoTruckRepository, VolvoTruckRepository>();
 
 var app = builder.Build();
 
