@@ -28,3 +28,11 @@ dotnet run
 
 ## Usage
 
+In a browser of your choice, access https://localhost:7287/
+In the landing page, go to the menu option "Trucks Editor".
+When the page loads, you'll see the list of trucks registered - if there are any - and the option to create
+a new truck on the link "New Truck". To create a new one, select this option.
+Register the necessary information and click on "Create". If the truck was successfully created,
+you'll be redirected to the Trucks Editor page, and the new record will appear on the list, with
+two options at the right side - "Edit" and "Delete". Choose the first to change the information
+of the related record and the second one to erase that truck from the database.
