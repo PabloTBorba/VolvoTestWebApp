@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VolvoTestWebApp.Data;
 using VolvoTestWebApp.Helpers;
@@ -38,14 +39,31 @@ namespace VolvoTestWebApp.Controllers
             else
                 _context.Add(volvoTruckModel);
 
+            return await SaveChanges(true, volvoTruckModel.IsEdit);
+        }
+
+        private async Task<UpdateTypeEnum> DeleteTruck(int truckId)
+        {
+            var volvoTruckModel = await GetTruckById(truckId);
+            _context.VolvoTrucks.Remove(volvoTruckModel);
+            return await SaveChanges(false);
+        }
+
+        private async Task<UpdateTypeEnum> SaveChanges(bool isUpsert, bool? isEdit = false)
+        {
             try
             {
                 var result = await _context.SaveChangesAsync();
 
                 if (result > 0)
-                    return (volvoTruckModel.IsEdit) ? 
-                        UpdateTypeEnum.UpdateOk : 
-                        UpdateTypeEnum.CreateOk;
+                    if (isUpsert)
+                    {
+                        return (isEdit.Value) ?
+                            UpdateTypeEnum.UpdateOk :
+                            UpdateTypeEnum.CreateOk;
+                    }
+                    else
+                        return UpdateTypeEnum.DeleteOk;
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -59,7 +77,10 @@ namespace VolvoTestWebApp.Controllers
 
         #region GET methods
 
-        // GET: VolvoTrucks
+        /**
+         * GET: VolvoTrucks
+         * Returns the list of registered trucks - if exists
+         */
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -128,81 +149,10 @@ namespace VolvoTestWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var volvoTruckModel = await GetTruckById(id);
-            _context.VolvoTrucks.Remove(volvoTruckModel);
-            await _context.SaveChangesAsync();
+            await DeleteTruck(id);
             return RedirectToAction(nameof(Index));
         }
 
-        /*
-        // POST: VolvoTrucks/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Description,Model,FabricationYear,ModelYear")] VolvoTruckModel volvoTruckModel)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(volvoTruckModel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(volvoTruckModel);
-        }
-
-        // POST: VolvoTrucks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Model,FabricationYear,ModelYear")] VolvoTruckModel volvoTruckModel)
-        {
-            if (id != volvoTruckModel.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(volvoTruckModel);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!VolvoTruckModelExists(volvoTruckModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(volvoTruckModel);
-        }
-        */
-
         #endregion POST methods
-
-        /*
-        // GET: VolvoTrucks/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-                return NotFound();
-
-
-
-            if (volvoTruckModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(volvoTruckModel);
-        }
-        */
     }
 }

@@ -4,6 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VolvoTestWebApp.Models
 {
+    /**
+     * Basic object model for the Volvo Truck
+     * Also contain some non-mapped elements required for the create/edit forms
+     */
     [Table("VolvoTruck")]
     public class VolvoTruckModel
     {

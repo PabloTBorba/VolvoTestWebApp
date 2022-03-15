@@ -32,9 +32,10 @@
         {
             @foreach (var item in Model)
             {
+                var description = item.Description ?? "Desc. not available";
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Description)
+                        @description
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Model)
@@ -51,6 +52,15 @@
                     </td>
                 </tr>
             }
+        }
+        else
+        {   
+            <tr>
+                <td>
+                    No truck is registered in the system.
+                </td>
+                <td></td><td></td><td></td><td></td>
+            </tr>
         }
     </tbody>
 </table>
